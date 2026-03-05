@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth'); // Importation de nos routes
 const app = express();
 const PORT = 3001;
 
+const listingsRoutes = require('./routes/listings');
 // Middlewares
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -16,7 +17,7 @@ app.use(express.json());
 
 // Configuration de la session 
 app.use(session({
-    secret: 'supersecret_serviceboard_key', // Clé secrète 
+    secret: 'supersecret_serviceboard_key',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -33,6 +34,8 @@ app.use('/api/auth', authRoutes);
 app.get('/', (req, res) => {
     res.send('Backend ServiceBoard actif et base de données connectée !');
 });
+app.use('/api/ads', listingsRoutes);
+
 
 // Lancement du serveur avec gestion d'erreurs
 const server = app.listen(PORT, () => {

@@ -3,6 +3,8 @@ import RegisterView from '../views/RegisterView.vue'
 import LoginView from '../views/LoginView.vue'
 import LandingView from '../views/LandingView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import AdCreateView from '../views/AdCreateView.vue'
+import AdEditView from '../views/AdEditView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,6 +20,11 @@ const router = createRouter({
       component: DashboardView
     },
     {
+      path: '/create-ad',
+      name: 'create-ad',
+      component: AdCreateView
+    },
+    {
       path: '/register',
       name: 'register',
       component: RegisterView
@@ -26,6 +33,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView
+    },
+    {
+      path: '/edit-ad/:id',
+      name: 'edit-ad',
+      component: AdEditView
     }
   ]
 })
