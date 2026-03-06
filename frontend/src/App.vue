@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <header>
-      <router-link to="/" style="color: white; text-decoration: none;">
-        <h1>Bienvenue</h1>
-      </router-link>
+    <header class="bg-dark">
+      <Navbar></Navbar>
     </header>
 
 
     <main>
       <router-view></router-view>
     </main>
+
+    <footer class="fixed-bottom"><FooterComponent></FooterComponent></footer>
   </div>
 </template>
 
@@ -32,3 +32,7 @@ main {
   margin: 0 auto;
 }
 </style>
+<script setup lang="ts">
+import Navbar from "@/components/Navbar.vue";
+import FooterComponent from "@/components/Footer.vue";
+</script>
