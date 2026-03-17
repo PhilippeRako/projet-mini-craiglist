@@ -23,6 +23,13 @@
         </p>
         <p class="author">Par <strong>{{ ad.author }}</strong></p>
 
+
+        <!-- Bouton contacter (si ce n'est PAS notre annonce) -->
+        <div v-if="currentUser && currentUser.id !== ad.user_id" class="contact-section">
+          <button @click="contactSeller(ad.id)" class="btn-contact">Contacter</button>
+        </div>
+
+
         <!-- Actions uniquement si c'est notre annonce -->
         <div v-if="currentUser && currentUser.id === ad.user_id" class="ad-actions">
           <router-link :to="`/edit-ad/${ad.id}`" class="btn-action btn-edit">Modifier</router-link>
@@ -35,7 +42,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-
+import router from '../router';
 const ads = ref([]);
 const loading = ref(true);
 const error = ref('');
@@ -69,6 +76,42 @@ const fetchAds = async () => {
     loading.value = false;
   }
 };
+
+
+
+//Système de messagerie
+const contactSeller = async (adId) => {
+  if (!currentUser.value) {
+    alert("Vous devez être connecté pour contacter un vendeur.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:3001/api/conversations/start", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ adId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Erreur lors de l'ouverture de la conversation.");
+      return;
+    }
+
+    // Redirection vers la conversation
+    router.push(`/conversation/${data.id}`);
+  } catch (err) {
+    console.error("Erreur contact vendeur :", err);
+    alert("Impossible de contacter le vendeur.");
+  }
+};
+
+
+
+
 
 // Supprimer une annonce
 const deleteAd = async (id) => {
@@ -122,4 +165,20 @@ onMounted(async () => {
 .btn-edit:hover { background-color: #007bff; color: white; }
 .btn-delete { background-color: #f8f9fa; color: #dc3545; border: 1px solid #dc3545; }
 .btn-delete:hover { background-color: #dc3545; color: white; }
+
+.btn-contact {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+}
+
+.btn-contact:hover {
+  background-color: #0056b3;
+}
+
 </style>

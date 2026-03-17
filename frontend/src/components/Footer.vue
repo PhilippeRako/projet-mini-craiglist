@@ -1,8 +1,8 @@
 <template>
-  <footer class="footer">
+  <footer class="footer fixed-bottom">
     <div class="footer-content">
-      <p><b>Craiglist projet cnam</b></p>
-      <p>Kallee Shradha - Rakotondrabe Philippe</p>
+    <!--  <p><b>Craiglist projet cnam</b></p>
+      <p>Kallee Shradha - Rakotondrabe Philippe</p> -->
     </div>
   </footer>
 </template>

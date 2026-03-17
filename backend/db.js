@@ -41,15 +41,17 @@ db.serialize(() => {
 
     // 3. Table conversations
     db.run(`CREATE TABLE IF NOT EXISTS conversations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ad_id INTEGER NOT NULL,
-        user1_id INTEGER NOT NULL,
-        user2_id INTEGER NOT NULL,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                         id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                         ad_id INTEGER NOT NULL,
+                                                         user1_id INTEGER NOT NULL,
+                                                         user2_id INTEGER NOT NULL,
+                                                         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                         UNIQUE(ad_id, user1_id, user2_id),
         FOREIGN KEY(ad_id) REFERENCES ads(id),
         FOREIGN KEY(user1_id) REFERENCES users(id),
         FOREIGN KEY(user2_id) REFERENCES users(id)
-    )`);
+        )`);
+
 
     // 4. Table messages
     db.run(`CREATE TABLE IF NOT EXISTS messages (

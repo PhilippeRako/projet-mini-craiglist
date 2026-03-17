@@ -30,6 +30,9 @@ app.use(session({
 // Déclaration de nos routes 
 app.use('/api/auth', authRoutes);
 
+app.use('/api/conversations', require('./routes/messaging'));
+
+
 // Route de test
 app.get('/', (req, res) => {
     res.send('Backend ServiceBoard actif et base de données connectée !');

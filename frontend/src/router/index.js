@@ -38,7 +38,14 @@ const router = createRouter({
       path: '/edit-ad/:id',
       name: 'edit-ad',
       component: AdEditView
+    },
+
+    {
+      path: '/conversation/:id',
+      name: 'conversation',
+      component: () => import('../views/ConversationView.vue')
     }
+
   ]
 })
 
