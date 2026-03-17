@@ -1,5 +1,24 @@
 const db = require('../db');
 
+//supprimer message
+exports.deleteAllMessages = (req, res) => {
+    const userId = req.session.userId;
+    const convId = req.params.id;
+
+    db.get(`SELECT * FROM conversations WHERE id = ?`, [convId], (err, conv) => {
+        if (!conv) return res.status(404).json({ error: 'Conversation introuvable.' });
+        if (conv.user1_id !== userId && conv.user2_id !== userId)
+            return res.status(403).json({ error: 'Accès interdit.' });
+
+        db.run(`DELETE FROM messages WHERE conversation_id = ?`, [convId], function (err) {
+            if (err) return res.status(500).json({ error: 'Erreur suppression messages.' });
+            res.status(200).json({ message: 'Messages supprimés.' });
+        });
+    });
+};
+
+
+
 //Démarrer une conversation
 exports.startConversation = (req, res) => {
     const userId = req.session.userId;
@@ -37,14 +56,20 @@ exports.getInbox = (req, res) => {
     const userId = req.session.userId;
 
     const query = `
-        SELECT c.*, 
-               a.title AS ad_title,
-               u.pseudo AS other_user,
-               (SELECT content FROM messages WHERE conversation_id = c.id ORDER ORDER BY created_at DESC LIMIT 1) AS last_message,
-               (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_date
+        SELECT
+            c.id,
+            c.ad_id,
+            a.title AS ad_title,
+            u.pseudo AS other_user,
+            (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
+            (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_date
         FROM conversations c
-        JOIN ads a ON c.ad_id = a.id
-        JOIN users u ON (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END) = u.id
+            JOIN ads a ON c.ad_id = a.id
+            JOIN users u
+            ON u.id = CASE
+            WHEN c.user1_id = ? THEN c.user2_id
+            ELSE c.user1_id
+        END
         WHERE c.user1_id = ? OR c.user2_id = ?
         ORDER BY last_date DESC;
     `;
@@ -54,6 +79,7 @@ exports.getInbox = (req, res) => {
         res.status(200).json(rows);
     });
 };
+
 
 // Messages d'une conversation
 exports.getMessages = (req, res) => {
@@ -66,7 +92,11 @@ exports.getMessages = (req, res) => {
             return res.status(403).json({ error: 'Accès interdit.' });
 
         db.all(
-            `SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at ASC`,
+            `SELECT m.*, u.pseudo AS sender_pseudo
+             FROM messages m
+                      JOIN users u ON m.sender_id = u.id
+             WHERE m.conversation_id = ?
+             ORDER BY m.created_at ASC`,
             [convId],
             (err, rows) => {
                 if (err) return res.status(500).json({ error: 'Erreur serveur.' });

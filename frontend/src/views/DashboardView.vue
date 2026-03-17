@@ -3,6 +3,8 @@
     <div class="header-dashboard">
       <h2>Accueil {{ currentUser ? `(${currentUser.pseudo})` : '' }}</h2>
       <router-link to="/create-ad" class="btn-primary">Créer une annonce</router-link>
+      <router-link to="/inbox" class="btn-primary">Messagerie</router-link>
+
     </div>
     
     <h3>Toutes les annonces</h3>

@@ -44,7 +44,14 @@ const router = createRouter({
       path: '/conversation/:id',
       name: 'conversation',
       component: () => import('../views/ConversationView.vue')
+    },
+
+    {
+      path: '/inbox',
+      name: 'inbox',
+      component: () => import('../views/InboxView.vue')
     }
+
 
   ]
 })
