@@ -63,6 +63,22 @@ exports.getCurrentUser = (req, res) => {
     }
 };
 
+//Modification du profil :
+exports.updateProfile = (req, res) => {
+    const userId = req.session.userId;
+    const { pseudo, ville, bio } = req.body;
+
+    db.run(
+        `UPDATE users SET pseudo=?, ville=?, bio=? WHERE id=?`,
+        [pseudo, ville, bio, userId],
+        function (err) {
+            if (err) return res.status(500).json({ error: "Erreur mise à jour." });
+            res.status(200).json({ message: "Profil mis à jour." });
+        }
+    );
+};
+
+
 // Déconnexion
 exports.logout = (req, res) => {
     req.session.destroy((err) => {

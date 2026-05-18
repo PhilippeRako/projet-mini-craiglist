@@ -33,9 +33,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/conversations', require('./routes/messaging'));
 
 
-// Route de test
+// Route de test (une fois connecté)
 app.get('/', (req, res) => {
-    res.send('Backend ServiceBoard actif et base de données connectée !');
+    res.send('Backend actif et base de données connectée !');
 });
 app.use('/api/ads', listingsRoutes);
 
@@ -45,6 +45,8 @@ const server = app.listen(PORT, () => {
     console.log(`Serveur lancé et en écoute sur http://localhost:${PORT}`);
 });
 
+
+//Traitement des erreurs lors de la connexion du backend
 server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
         console.error(`Le port ${PORT} est déjà utilisé par une autre application. Change le port dans server.js ou ferme l'autre application.`);

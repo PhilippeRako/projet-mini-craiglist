@@ -50,7 +50,18 @@ const router = createRouter({
       path: '/inbox',
       name: 'inbox',
       component: () => import('../views/InboxView.vue')
+    },
+    {
+      path: '/profil',
+      name: 'profil',
+      component: () => import('../views/ProfileView.vue')
+    },
+    {
+      path: '/profil/edit',
+      name: 'profil-edit',
+      component: () => import('../views/ProfileEditView.vue')
     }
+
 
 
   ]
