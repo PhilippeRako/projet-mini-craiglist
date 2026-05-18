@@ -41,6 +41,7 @@ const handleLogin = async () => {
     
     const data = await response.json();
     if (response.ok) {
+      window.dispatchEvent(new Event("login-success"));
       router.push('/dashboard');
     } else {
       message.value = 'Erreur : ' + data.error;
