@@ -28,7 +28,7 @@ header {
 }
 main {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 2000px;
   margin: 0 auto;
 }
 </style>

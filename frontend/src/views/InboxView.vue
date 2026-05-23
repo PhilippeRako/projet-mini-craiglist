@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import router from "../router";
 
 const conversations = ref([]);
@@ -47,7 +47,12 @@ const openConversation = (id) => {
   router.push(`/conversation/${id}`);
 };
 
-onMounted(fetchInbox);
+onMounted(() => {
+  fetchInbox();
+});
+
+onUnmounted(() => {
+});
 </script>
 
 <style scoped>

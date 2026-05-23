@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 // Crée ou ouvre la base de données dans un fichier database.sqlite
 const dbPath = path.resolve(__dirname, 'database.sqlite');
@@ -63,6 +64,40 @@ db.serialize(() => {
         FOREIGN KEY(conversation_id) REFERENCES conversations(id),
         FOREIGN KEY(sender_id) REFERENCES users(id)
     )`);
+
+    // 5. Table favorites
+    db.run(`CREATE TABLE IF NOT EXISTS favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        ad_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, ad_id),
+        FOREIGN KEY(user_id) REFERENCES users(id),
+        FOREIGN KEY(ad_id) REFERENCES ads(id)
+    )`);
+
+    // Comptes de test pré-créés
+    const createTestUser = (pseudo, password, ville, bio) => {
+        db.get('SELECT id FROM users WHERE pseudo = ?', [pseudo], (err, row) => {
+            if (err) return console.error('Erreur lecture utilisateur test :', err);
+            if (!row) {
+                bcrypt.hash(password, 10, (err, hash) => {
+                    if (err) return console.error('Erreur hash mot de passe test :', err);
+                    db.run(
+                        'INSERT INTO users (pseudo, password_hash, ville, bio) VALUES (?, ?, ?, ?)',
+                        [pseudo, hash, ville, bio],
+                        function (err) {
+                            if (err) return console.error('Erreur création utilisateur test :', err);
+                            console.log(`Compte test créé : ${pseudo}`);
+                        }
+                    );
+                });
+            }
+        });
+    };
+
+    createTestUser('alice', 'password123', 'Lyon', 'Prestataire tests');
+    createTestUser('bob', 'secret456', 'Paris', 'Cherche services');
 });
 
 module.exports = db;

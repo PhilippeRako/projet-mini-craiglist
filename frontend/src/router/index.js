@@ -5,6 +5,18 @@ import LandingView from '../views/LandingView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import AdCreateView from '../views/AdCreateView.vue'
 import AdEditView from '../views/AdEditView.vue'
+import MyAdsView from '../views/MyAdsView.vue'
+
+const authCheck = async () => {
+  try {
+    const res = await fetch('http://localhost:3001/api/auth/me', {
+      credentials: 'include'
+    });
+    return res.ok;
+  } catch (err) {
+    return false;
+  }
+};
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,7 +34,8 @@ const router = createRouter({
     {
       path: '/create-ad',
       name: 'create-ad',
-      component: AdCreateView
+      component: AdCreateView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/register',
@@ -37,34 +50,66 @@ const router = createRouter({
     {
       path: '/edit-ad/:id',
       name: 'edit-ad',
-      component: AdEditView
+      component: AdEditView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/ad/:id',
+      name: 'ad-detail',
+      component: () => import('../views/AdDetailView.vue')
     },
 
     {
       path: '/conversation/:id',
       name: 'conversation',
-      component: () => import('../views/ConversationView.vue')
+      component: () => import('../views/ConversationView.vue'),
+      meta: { requiresAuth: true }
     },
 
     {
       path: '/inbox',
       name: 'inbox',
-      component: () => import('../views/InboxView.vue')
+      component: () => import('../views/InboxView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/profil',
       name: 'profil',
-      component: () => import('../views/ProfileView.vue')
+      component: () => import('../views/ProfileView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/my-ads',
+      name: 'my-ads',
+      component: MyAdsView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: () => import('../views/FavoritesView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/profil/edit',
       name: 'profil-edit',
-      component: () => import('../views/ProfileEditView.vue')
+      component: () => import('../views/ProfileEditView.vue'),
+      meta: { requiresAuth: true }
     }
 
 
 
   ]
 })
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAuth) {
+    const isAuthenticated = await authCheck();
+    if (!isAuthenticated) {
+      return next({ name: 'login', query: { redirect: to.fullPath } });
+    }
+  }
+  next();
+});
 
 export default router

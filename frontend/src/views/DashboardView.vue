@@ -1,41 +1,110 @@
 <template>
-  <div class="dashboard">
-    <div class="header-dashboard">
-      <h2>Accueil {{ currentUser ? `(${currentUser.pseudo})` : '' }}</h2>
-      <router-link to="/create-ad" class="btn-primary">Créer une annonce</router-link>
-      <router-link to="/inbox" class="btn-primary">Messagerie</router-link>
-
+  <div class="dashboard container py-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+      <h2 class="mb-0">Accueil {{ currentUser ? `(${currentUser.pseudo})` : '' }}</h2>
+      <div class="d-flex gap-2 flex-wrap">
+        <router-link to="/create-ad" class="btn btn-primary">Créer une annonce</router-link>
+        <router-link to="/inbox" class="btn btn-secondary">Messagerie</router-link>
+        <router-link to="/my-ads" class="btn btn-outline-secondary">Mes annonces</router-link>
+      </div>
     </div>
-    
-    <h3>Toutes les annonces</h3>
-    
-    <div v-if="loading" class="loading">Chargement des annonces...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else-if="ads.length === 0" class="empty">Aucune annonce pour le moment. Soyez le premier à en créer une !</div>
-    
-    <div v-else class="ads-grid">
-      <div v-for="ad in ads" :key="ad.id" class="ad-card">
-        <span :class="['badge', ad.type === 'OFFER' ? 'badge-offer' : 'badge-request']">
-          {{ ad.type === 'OFFER' ? 'Offre' : 'Demande' }}
-        </span>
-        <h4>{{ ad.title }}</h4>
-        <p class="category">{{ ad.category }} - {{ ad.city }}</p>
-        <p class="price">
-          {{ ad.price_type === 'FREE' ? 'Gratuit' : (ad.price_type === 'HOURLY' ? ad.price_value + '€ /h' : ad.price_value + '€ Fixe') }}
-        </p>
-        <p class="author">Par <strong>{{ ad.author }}</strong></p>
 
-
-        <!-- Bouton contacter (si ce n'est PAS notre annonce) -->
-        <div v-if="currentUser && currentUser.id !== ad.user_id" class="contact-section">
-          <button @click="contactSeller(ad.id)" class="btn-contact">Contacter</button>
+    <section class="filters mb-4">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <input
+            class="form-control"
+            type="text"
+            v-model="searchQuery"
+            placeholder="Recherche par mot-clé..."
+          />
         </div>
 
+        <div class="col-6 col-md-2">
+          <select class="form-select" v-model="filterType">
+            <option value="">Tous les types</option>
+            <option value="OFFER">Offre</option>
+            <option value="REQUEST">Demande</option>
+          </select>
+        </div>
 
-        <!-- Actions uniquement si c'est notre annonce -->
-        <div v-if="currentUser && currentUser.id === ad.user_id" class="ad-actions">
-          <router-link :to="`/edit-ad/${ad.id}`" class="btn-action btn-edit">Modifier</router-link>
-          <button @click="deleteAd(ad.id)" class="btn-action btn-delete">Supprimer</button>
+        <div class="col-6 col-md-2">
+          <select class="form-select" v-model="filterCategory">
+            <option value="">Toutes les catégories</option>
+            <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <input
+            class="form-control"
+            type="text"
+            v-model="filterCity"
+            placeholder="Ville"
+          />
+        </div>
+
+        <div class="col-6 col-md-2">
+          <select class="form-select" v-model="sortOrder">
+            <option value="recent">Plus récent</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+        <span class="text-muted">Résultats mis à jour automatiquement.</span>
+        <button class="btn btn-outline-secondary" @click="resetFilters">Réinitialiser</button>
+      </div>
+    </section>
+
+    <h3 class="mb-3">Toutes les annonces</h3>
+
+    <div v-if="loading" class="alert alert-info">Chargement des annonces...</div>
+    <div v-else-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-else-if="ads.length === 0" class="alert alert-warning">Aucune annonce pour le moment. Soyez le premier à en créer une !</div>
+
+    <div v-else class="row row-cols-1 row-cols-md-2 g-4">
+      <div v-for="ad in ads" :key="ad.id" class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
+              <h5 class="card-title mb-0"><router-link :to="`/ad/${ad.id}`" class="text-decoration-none">{{ ad.title }}</router-link></h5>
+              <div class="d-flex gap-2">
+                <button
+                  v-if="currentUser"
+                  @click="toggleFavorite(ad.id)"
+                  class="btn btn-sm btn-link"
+                  :class="isFavorite(ad.id) ? 'text-danger' : 'text-secondary'"
+                  :title="isFavorite(ad.id) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+                >
+                  {{ isFavorite(ad.id) ? '♥' : '♡' }}
+                </button>
+                <span class="badge rounded-pill" :class="ad.type === 'OFFER' ? 'bg-success' : 'bg-info text-dark'">{{ ad.type === 'OFFER' ? 'Offre' : 'Demande' }}</span>
+              </div>
+            </div>
+
+            <p class="card-text text-muted mb-1">{{ ad.category }} - {{ ad.city }}</p>
+            <p class="card-text mb-2">{{ ad.description }}</p>
+            <p class="fw-semibold mb-2">{{ ad.price_type === 'FREE' ? 'Gratuit' : (ad.price_type === 'HOURLY' ? ad.price_value + '€ /h' : ad.price_value + '€ Fixe') }}</p>
+            <p class="text-secondary mb-3">Par <strong>{{ ad.author }}</strong></p>
+
+            <div class="mt-auto d-flex gap-2 flex-wrap">
+              <button
+                v-if="currentUser && currentUser.id !== ad.user_id"
+                @click="contactSeller(ad.id)"
+                class="btn btn-success btn-sm flex-grow-1"
+              >
+                Contacter
+              </button>
+
+              <div v-if="currentUser && currentUser.id === ad.user_id" class="d-flex gap-2 flex-wrap w-100">
+                <router-link :to="`/edit-ad/${ad.id}`" class="btn btn-outline-primary btn-sm flex-grow-1">Modifier</router-link>
+                <button @click="deleteAd(ad.id)" class="btn btn-outline-danger btn-sm flex-grow-1">Supprimer</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -43,12 +112,57 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import router from '../router';
 const ads = ref([]);
 const loading = ref(true);
 const error = ref('');
 const currentUser = ref(null);
+const searchQuery = ref('');
+const filterType = ref('');
+const filterCategory = ref('');
+const filterCity = ref('');
+const sortOrder = ref('recent');
+const categories = ref(['Bricolage', 'Jardinage', 'Soutien Scolaire', 'Informatique', 'Ménage', 'Autre']);
+
+const buildQueryParams = () => {
+  const params = new URLSearchParams();
+  if (searchQuery.value) params.set('q', searchQuery.value);
+  if (filterType.value) params.set('type', filterType.value);
+  if (filterCategory.value) params.set('category', filterCategory.value);
+  if (filterCity.value) params.set('city', filterCity.value);
+  if (sortOrder.value) params.set('sort', sortOrder.value);
+  return params.toString() ? `?${params.toString()}` : '';
+};
+
+const applyFilters = () => {
+  loading.value = true;
+  fetchAds();
+};
+
+let filterTimer = null;
+
+watch([searchQuery, filterType, filterCategory, filterCity, sortOrder], () => {
+  loading.value = true;
+  error.value = '';
+
+  if (filterTimer) {
+    clearTimeout(filterTimer);
+  }
+
+  filterTimer = setTimeout(() => {
+    fetchAds();
+  }, 300);
+});
+
+const resetFilters = () => {
+  searchQuery.value = '';
+  filterType.value = '';
+  filterCategory.value = '';
+  filterCity.value = '';
+  sortOrder.value = 'recent';
+  applyFilters();
+};
 
 // Savoir qui est connecté actuellement
 const fetchCurrentUser = async () => {
@@ -66,7 +180,7 @@ const fetchCurrentUser = async () => {
 // Récupérer tt les annonces
 const fetchAds = async () => {
   try {
-    const response = await fetch('http://localhost:3001/api/ads');
+    const response = await fetch(`http://localhost:3001/api/ads${buildQueryParams()}`);
     if (response.ok) {
       ads.value = await response.json();
     } else {
@@ -138,49 +252,88 @@ const deleteAd = async (id) => {
   }
 };
 
+// Gestion des favoris
+const favorites = ref(new Set());
+
+const fetchFavorites = async () => {
+  if (!currentUser.value) return;
+  try {
+    const response = await fetch('http://localhost:3001/api/favorites', {
+      credentials: 'include'
+    });
+    if (response.ok) {
+      const favoriteAds = await response.json();
+      favorites.value = new Set(favoriteAds.map(ad => ad.id));
+    }
+  } catch (err) {
+    console.error('Erreur récupération favoris :', err);
+  }
+};
+
+const isFavorite = (adId) => {
+  return favorites.value.has(adId);
+};
+
+const toggleFavorite = async (adId) => {
+  if (!currentUser.value) {
+    alert('Vous devez être connecté pour ajouter aux favoris.');
+    return;
+  }
+
+  if (isFavorite(adId)) {
+    // Retirer des favoris
+    try {
+      const response = await fetch(`http://localhost:3001/api/favorites/${adId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        favorites.value.delete(adId);
+      }
+    } catch (err) {
+      console.error('Erreur retrait favori :', err);
+    }
+  } else {
+    // Ajouter aux favoris
+    try {
+      const response = await fetch('http://localhost:3001/api/favorites', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adId })
+      });
+      if (response.ok) {
+        favorites.value.add(adId);
+      }
+    } catch (err) {
+      console.error('Erreur ajout favori :', err);
+    }
+  }
+};
+
 onMounted(async () => {
   await fetchCurrentUser();
+  await fetchFavorites();
   fetchAds();
 });
 </script>
 
 <style scoped>
-.dashboard { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.header-dashboard { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-.btn-primary { background-color: #007bff; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; }
-.btn-primary:hover { background-color: #0056b3; }
-
-.ads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 20px; }
-.ad-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; background: white; transition: box-shadow 0.2s; position: relative; display: flex; flex-direction: column; }
-.ad-card:hover { box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-.badge { position: absolute; top: 15px; right: 15px; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
-.badge-offer { background-color: #28a745; }
-.badge-request { background-color: #17a2b8; }
-.category { color: #6c757d; font-size: 14px; margin-bottom: 5px; }
-.price { font-weight: bold; color: #333; font-size: 18px; margin: 10px 0; }
-.author { font-size: 12px; color: #999; margin-bottom: 15px; }
-
-/* Styles des boutons d'action */
-.ad-actions { margin-top: auto; display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 15px; }
-.btn-action { flex: 1; text-align: center; padding: 6px; border-radius: 4px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; border: none; }
-.btn-edit { background-color: #f8f9fa; color: #007bff; border: 1px solid #007bff; }
-.btn-edit:hover { background-color: #007bff; color: white; }
-.btn-delete { background-color: #f8f9fa; color: #dc3545; border: 1px solid #dc3545; }
-.btn-delete:hover { background-color: #dc3545; color: white; }
-
-.btn-contact {
-  background-color: #007bff;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  font-weight: bold;
+.dashboard {
+  min-height: 100%;
 }
 
-.btn-contact:hover {
-  background-color: #0056b3;
+.filters .form-select,
+.filters .form-control {
+  min-height: 42px;
 }
 
+.card-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
 </style>

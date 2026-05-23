@@ -9,9 +9,14 @@
       <p><strong>Ville :</strong> {{ user.ville || "Non renseigné" }}</p>
       <p><strong>Bio :</strong> {{ user.bio || "Aucune bio" }}</p>
 
-      <router-link to="/profil/edit" class="btn btn-primary mt-3">
-        Modifier mon profil
-      </router-link>
+      <div class="d-flex gap-2 mt-3 flex-wrap">
+        <router-link to="/my-ads" class="btn btn-secondary">
+          Mes annonces
+        </router-link>
+        <router-link to="/profil/edit" class="btn btn-primary">
+          Modifier mon profil
+        </router-link>
+      </div>
     </div>
   </div>
 </template>

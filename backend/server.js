@@ -31,7 +31,7 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 
 app.use('/api/conversations', require('./routes/messaging'));
-
+app.use('/api/favorites', require('./routes/favorites'));
 
 // Route de test (une fois connecté)
 app.get('/', (req, res) => {

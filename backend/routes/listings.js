@@ -5,6 +5,8 @@ const requireAuth = require('../middlewares/auth');
 
 // tt le monde peut voir les annonces
 router.get('/', listingsController.getAllAds);
+router.get('/mine', requireAuth, listingsController.getMyAds);
+router.get('/:id', listingsController.getAdById);
 
 // seul un utilisateur connecté peut créer une annonce
 router.post('/', requireAuth, listingsController.createAd);

@@ -5,61 +5,57 @@
 
       <div class="d-flex gap-3">
         <router-link
-            to="/"
+            v-if="currentUser"
+            to="/dashboard"
         >
           <img id="logoapp" src="../assets/cnamlogo.png" alt="logo">
         </router-link>
-        <router-link
-            v-if="currentUser"
-            to="/offres"
-            class="btn btn-outline-light fw-semibold px-4"
-        >
-          Offre
-        </router-link>
 
-        <router-link
-            v-if="currentUser"
-            to="/demandes"
-            class="btn btn-light fw-semibold px-4"
-        >
-          Demande
-        </router-link>
 
       </div>
 
 
-      <div v-if="currentUser" class="dropdown ms-auto">
-
-      <button
+      <div v-if="currentUser" class="d-flex gap-3 ms-auto align-items-center">
+        <div class="dropdown">
+          <button
             class="btn btn-dark border-0 dropdown-toggle d-flex align-items-center"
             type="button"
             data-bs-toggle="dropdown"
-        >
-          <i class="bi bi-person-circle fs-3"></i>
-        </button>
+          >
+            <i class="bi bi-person-circle fs-3"></i>
+          </button>
 
-        <ul class="dropdown-menu dropdown-menu-end shadow">
-          <li>
-            <router-link class="dropdown-item" to="/profil">
-              Voir mon profil
-            </router-link>
-          </li>
+          <ul class="dropdown-menu dropdown-menu-end shadow">
+            <li>
+              <router-link class="dropdown-item" to="/profil">
+                Voir mon profil
+              </router-link>
+            </li>
+            <li>
+              <router-link class="dropdown-item" to="/my-ads">
+                Mes annonces
+              </router-link>
+            </li>
+            <li>
+              <router-link class="dropdown-item" to="/favorites">
+                Mes favoris
+              </router-link>
+            </li>
+            <li>
+              <router-link class="dropdown-item" to="/profil/edit">
+                Modifier mon profil
+              </router-link>
+            </li>
 
-          <li>
-            <router-link class="dropdown-item" to="/profil/edit">
-              Modifier mon profil
-            </router-link>
-          </li>
+            <li><hr class="dropdown-divider" /></li>
 
-          <li><hr class="dropdown-divider" /></li>
-
-          <li>
-            <button class="dropdown-item text-danger" @click="logout">
-              Se déconnecter
-            </button>
-          </li>
-        </ul>
-
+            <li>
+              <button class="dropdown-item text-danger" @click="logout">
+                Se déconnecter
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
     </div>
@@ -136,5 +132,16 @@ onUnmounted(() => {
 
 .dropdown-menu {
   border-radius: 8px;
+}
+
+.btn-dark:hover {
+  background: #2d2d2d;
+}
+
+.badge {
+  font-size: 0.7rem;
+  min-width: 20px;
+  height: 20px;
+  padding: 2px 5px;
 }
 </style>

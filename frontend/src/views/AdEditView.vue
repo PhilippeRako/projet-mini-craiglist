@@ -71,8 +71,16 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label>Statut</label>
+        <select v-model="form.status" required>
+          <option value="DRAFT">Brouillon</option>
+          <option value="PUBLISHED">Publié</option>
+        </select>
+      </div>
+
       <button type="submit" class="btn-submit" :disabled="loadingSubmit">
-        {{ loadingSubmit ? 'Modification en cours...' : 'Enregistrer les modifications' }}
+        {{ loadingSubmit ? (form.status === 'DRAFT' ? 'Enregistrement en cours...' : 'Mise à jour en cours...') : (form.status === 'DRAFT' ? 'Enregistrer le brouillon' : 'Enregistrer et publier') }}
       </button>
     </form>
     
@@ -93,22 +101,22 @@ const isError = ref(false);
 
 const form = reactive({
   type: 'OFFER', title: '', description: '', category: '', city: '',
-  availability: '', price_type: 'HOURLY', price_value: null, modalities: 'AT_CUSTOMER'
+  availability: '', price_type: 'HOURLY', price_value: null, modalities: 'AT_CUSTOMER', status: 'DRAFT'
 });
 
 // Récupérer l'annonce existante et pré-remplir le formulaire
 onMounted(async () => {
   try {
-    const res = await fetch(`http://localhost:3001/api/ads`); // On récupère toutes les annonces
-    const ads = await res.json();
-    const myAd = ads.find(a => a.id == route.params.id); // On trouve celle qui correspond à notre ID dans l'URL
-    
-    if(myAd) {
-      // On copie les données de l'annonce dans notre formulaire
+    const res = await fetch(`http://localhost:3001/api/ads/${route.params.id}`, {
+      credentials: 'include'
+    });
+    const myAd = await res.json();
+
+    if (res.ok) {
       Object.assign(form, myAd);
     } else {
       isError.value = true;
-      message.value = 'Annonce introuvable !';
+      message.value = myAd.error || 'Annonce introuvable !';
     }
   } catch (err) {
     isError.value = true;

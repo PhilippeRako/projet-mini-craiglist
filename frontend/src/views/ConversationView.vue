@@ -2,7 +2,7 @@
   <div class="conversation">
     <h2>Conversation</h2>
     <button class="btn-back" @click="router.back()">← Retour</button>
-    <button class="btn-delete" @click="deleteAll">🗑 Supprimer tous les messages</button>
+    <button class="btn-delete" @click="deleteAll">Supprimer tous les messages</button>    
 
 
     <div v-if="loading">Chargement...</div>

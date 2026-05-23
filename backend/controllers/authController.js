@@ -56,11 +56,15 @@ exports.login = (req, res) => {
 
 // Obtenir l'utilisateur actuellement connecté
 exports.getCurrentUser = (req, res) => {
-    if (req.session.userId) {
-        res.status(200).json({ user: { id: req.session.userId, pseudo: req.session.pseudo } });
-    } else {
-        res.status(401).json({ error: 'Non authentifié.' });
+    if (!req.session.userId) {
+        return res.status(401).json({ error: 'Non authentifié.' });
     }
+
+    db.get(`SELECT id, pseudo, ville, bio FROM users WHERE id = ?`, [req.session.userId], (err, user) => {
+        if (err) return res.status(500).json({ error: 'Erreur serveur.' });
+        if (!user) return res.status(404).json({ error: 'Utilisateur introuvable.' });
+        res.status(200).json({ user });
+    });
 };
 
 //Modification du profil :

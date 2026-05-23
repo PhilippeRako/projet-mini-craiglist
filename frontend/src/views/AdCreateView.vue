@@ -58,7 +58,6 @@
           <input type="number" v-model="form.price_value" step="0.5" required min="0" />
         </div>
       </div>
-
       <div class="form-group">
         <label>Modalités</label>
         <select v-model="form.modalities">
@@ -69,8 +68,16 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label>Statut</label>
+        <select v-model="form.status" required>
+          <option value="DRAFT">Brouillon</option>
+          <option value="PUBLISHED">Publié</option>
+        </select>
+      </div>
+
       <button type="submit" class="btn-submit" :disabled="loading">
-        {{ loading ? 'Publication en cours...' : 'Publier l\'annonce' }}
+        {{ loading ? (form.status === 'DRAFT' ? 'Enregistrement en cours...' : 'Publication en cours...') : (form.status === 'DRAFT' ? 'Enregistrer le brouillon' : 'Publier l\'annonce') }}
       </button>
     </form>
     
@@ -96,7 +103,8 @@ const form = reactive({
   availability: '',
   price_type: 'HOURLY',
   price_value: null,
-  modalities: 'AT_CUSTOMER'
+  modalities: 'AT_CUSTOMER',
+  status: 'DRAFT'
 });
 
 const handleSubmit = async () => {
