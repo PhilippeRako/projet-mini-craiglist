@@ -1,63 +1,167 @@
 <template>
-  <div class="login">
-    <h2>Se connecter</h2>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label>Pseudo</label>
-        <input type="text" v-model="pseudo" required />
-      </div>
-      <div>
-        <label>Mot de passe</label>
-        <input type="password" v-model="password" required />
-      </div>
-      <button type="submit">Connexion</button>
-    </form>
-    <p v-if="message" class="message">{{ message }}</p>
+  <div class="login-page">
+    <div class="login-box">
+      <h2>Se connecter</h2>
+
+      <form @submit.prevent="handleLogin">
+        <div class="field">
+          <label>Pseudo</label>
+          <input type="text" v-model="pseudo" required />
+        </div>
+
+        <div class="field">
+          <label>Mot de passe</label>
+          <input type="password" v-model="password" required />
+        </div>
+
+        <button type="submit" class="btn primary">Connexion</button>
+      </form>
+
+      <p v-if="message" class="message">{{ message }}</p>
+
+      <router-link to="/" class="btn secondary back-btn">Retour</router-link>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const pseudo = ref('');
-const password = ref('');
-const message = ref('');
-const router = useRouter();
+const pseudo = ref('')
+const password = ref('')
+const message = ref('')
+const router = useRouter()
 
 const handleLogin = async () => {
   try {
     const response = await fetch('http://localhost:3001/api/auth/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include', 
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         pseudo: pseudo.value,
         password: password.value
       })
-    });
-    
-    const data = await response.json();
+    })
+
+    const data = await response.json()
+
     if (response.ok) {
-      window.dispatchEvent(new Event("login-success"));
-      router.push('/dashboard');
+      window.dispatchEvent(new Event("login-success"))
+      router.push('/dashboard')
     } else {
-      message.value = 'Erreur : ' + data.error;
+      message.value = 'Erreur : ' + data.error
     }
-  } catch (error) {
-    message.value = 'Erreur de connexion au serveur.';
+  } catch {
+    message.value = 'Erreur de connexion au serveur.'
   }
-};
+}
 </script>
 
 <style scoped>
-.login { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-form div { margin-bottom: 15px; }
-label { display: block; margin-bottom: 5px; }
-input { width: 100%; padding: 8px; box-sizing: border-box; }
-button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-button:hover { background-color: #218838; }
-.message { margin-top: 15px; font-weight: bold; }
+:global(html, body) {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: auto;
+  overflow-x: hidden;
+}
+
+.login-page {
+  width: 100vw;
+  min-height: 100vh;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.8s ease;
+}
+
+h2 {
+  margin-bottom: 25px;
+  color: #2e7d32;
+  font-size: 2rem;
+}
+
+.field {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: 0.2s;
+}
+
+input:focus {
+  border-color: #2e7d32;
+  outline: none;
+}
+
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.25s;
+  margin-top: 10px;
+}
+
+.primary {
+  background: #2e7d32;
+  color: white;
+}
+
+.primary:hover {
+  background: #1b5e20;
+}
+
+.secondary {
+  border: 2px solid #2e7d32;
+  color: #2e7d32;
+  background: transparent;
+}
+
+.secondary:hover {
+  background: #2e7d32;
+  color: white;
+}
+
+.back-btn {
+  margin-top: 20px;
+}
+
+.message {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #c0392b;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>

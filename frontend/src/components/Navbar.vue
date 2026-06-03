@@ -2,7 +2,6 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
     <div class="container-fluid">
 
-
       <div class="d-flex gap-3">
         <router-link
             v-if="currentUser"
@@ -10,17 +9,20 @@
         >
           <img id="logoapp" src="../assets/cnamlogo.png" alt="logo">
         </router-link>
-
-
       </div>
 
-
       <div v-if="currentUser" class="d-flex gap-3 ms-auto align-items-center">
+
+        <router-link to="/favorites" class="fav-btn">
+          <i class="bi bi-heart-fill"></i>
+        </router-link>
+
+
         <div class="dropdown">
           <button
-            class="btn btn-dark border-0 dropdown-toggle d-flex align-items-center"
-            type="button"
-            data-bs-toggle="dropdown"
+              class="btn btn-dark border-0 dropdown-toggle d-flex align-items-center"
+              type="button"
+              data-bs-toggle="dropdown"
           >
             <i class="bi bi-person-circle fs-3"></i>
           </button>
@@ -34,11 +36,6 @@
             <li>
               <router-link class="dropdown-item" to="/my-ads">
                 Mes annonces
-              </router-link>
-            </li>
-            <li>
-              <router-link class="dropdown-item" to="/favorites">
-                Mes favoris
               </router-link>
             </li>
             <li>
@@ -56,6 +53,7 @@
             </li>
           </ul>
         </div>
+
       </div>
 
     </div>
@@ -109,9 +107,7 @@ onUnmounted(() => {
 });
 </script>
 
-
 <style scoped>
-
 #logoapp {
   width: 15vmin;
 }
@@ -120,14 +116,23 @@ onUnmounted(() => {
   background: #1f1f1f;
 }
 
-.btn-light {
-  background: #ffffff;
-  color: #000;
+
+.fav-btn {
+  background: #e74c3c;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s;
+  text-decoration: none;
 }
 
-.btn-outline-light:hover {
-  background: #ffffff;
-  color: #000;
+.fav-btn:hover {
+  background: #c0392b;
+  color: white;
 }
 
 .dropdown-menu {
@@ -136,12 +141,5 @@ onUnmounted(() => {
 
 .btn-dark:hover {
   background: #2d2d2d;
-}
-
-.badge {
-  font-size: 0.7rem;
-  min-width: 20px;
-  height: 20px;
-  padding: 2px 5px;
 }
 </style>

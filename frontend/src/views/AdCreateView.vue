@@ -58,6 +58,7 @@
           <input type="number" v-model="form.price_value" step="0.5" required min="0" />
         </div>
       </div>
+
       <div class="form-group">
         <label>Modalités</label>
         <select v-model="form.modalities">
@@ -80,7 +81,7 @@
         {{ loading ? (form.status === 'DRAFT' ? 'Enregistrement en cours...' : 'Publication en cours...') : (form.status === 'DRAFT' ? 'Enregistrer le brouillon' : 'Publier l\'annonce') }}
       </button>
     </form>
-    
+
     <p v-if="message" :class="['message', isError ? 'error' : 'success']">{{ message }}</p>
   </div>
 </template>
@@ -110,31 +111,29 @@ const form = reactive({
 const handleSubmit = async () => {
   loading.value = true;
   message.value = '';
-  
+
   try {
     const response = await fetch('http://localhost:3001/api/ads', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      credentials: 'include', // Important pour envoyer le cookie de session !
+      credentials: 'include',
       body: JSON.stringify(form)
     });
-    
+
     const data = await response.json();
-    
+
     if (response.ok) {
       isError.value = false;
       message.value = 'Annonce publiée avec succès !';
-      // Redirection vers le dashboard après 1.5s
       setTimeout(() => {
         router.push('/dashboard');
       }, 1500);
     } else {
       isError.value = true;
       message.value = 'Erreur : ' + (data.error || 'Erreur inconnue');
-      
-      // Si l'utilisateur n'est plus connecté, on le renvoie vers la page de login
+
       if (response.status === 401) {
         setTimeout(() => {
           router.push('/login');
@@ -151,30 +150,38 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+
 .ad-create {
+  margin-top: 120px;
   max-width: 600px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   background: white;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
+
 .form-group {
   margin-bottom: 20px;
 }
+
 .form-row {
   display: flex;
   gap: 15px;
 }
+
 .half {
   flex: 1;
 }
+
 label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
   color: #333;
 }
+
 input, select, textarea {
   width: 100%;
   padding: 10px;
@@ -183,10 +190,12 @@ input, select, textarea {
   box-sizing: border-box;
   font-family: inherit;
 }
+
 input:focus, select:focus, textarea:focus {
   border-color: #28a745;
   outline: none;
 }
+
 .btn-submit {
   width: 100%;
   padding: 12px;
@@ -200,13 +209,16 @@ input:focus, select:focus, textarea:focus {
   transition: background-color 0.2s;
   margin-top: 10px;
 }
+
 .btn-submit:hover:not(:disabled) {
   background-color: #218838;
 }
+
 .btn-submit:disabled {
   background-color: #6c757d;
   cursor: not-allowed;
 }
+
 .message {
   margin-top: 20px;
   padding: 10px;
@@ -214,10 +226,12 @@ input:focus, select:focus, textarea:focus {
   text-align: center;
   font-weight: bold;
 }
+
 .success {
   background-color: #d4edda;
   color: #155724;
 }
+
 .error {
   background-color: #f8d7da;
   color: #721c24;

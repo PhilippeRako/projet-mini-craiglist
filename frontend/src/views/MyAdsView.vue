@@ -7,7 +7,7 @@
       </div>
       <div class="d-flex gap-2 flex-wrap">
         <router-link to="/create-ad" class="btn btn-primary">Nouvelle annonce</router-link>
-        <router-link to="/profil" class="btn btn-outline-secondary">Retour profil</router-link>
+        <router-link to="/dashboard" class="btn btn-outline-secondary">Retour menu principal</router-link>
       </div>
     </div>
 
